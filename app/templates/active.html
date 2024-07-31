@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div id="active">
+        <div id="driver-navbar-content">
+            <h1 class="driver-card">У вас активен диалог с водителем</h1>
+            <h2 class="driver-card">Можете свернуть приложение и продолжить общение с водителем</h2>
+            <h2 class="driver-card">Пока у вас есть активный диалог выбрать другую машину нельзя, завершите диалог если ваша поездка закночилась или не состоялась, чтобы найти новую машину</h3>
+        </div>
+    </div>
+    <div id="map"></div>
+</body>
+</html>

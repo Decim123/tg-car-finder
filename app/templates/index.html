@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/start_screen.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/start_screen.js') }}"></script>
+</head>
+<body>
+    {% if status == 'inactive' %}
+    <style>
+        #driver-navbar {
+            display: none;
+        }
+        #map {
+            display: none;
+        }
+    </style>
+    <div id="swipe-text">похоже вы забыли включить транслирование геопозиции (Live location)</div>
+    {% endif %}
+    <div id="start-screen" class="start-screen">
+        <div class="animation-container">
+            <img src="{{ url_for('static', filename='images/background.jpg') }}" class="background">
+            <div class="moving-image-left">
+                <img src="{{ url_for('static', filename='images/image1.png') }}" alt="Image 1">
+            </div>
+
+            <div class="moving-image-right">
+                <img src="{{ url_for('static', filename='images/image2.png') }}" alt="Image 2">
+            </div>
+
+        {% if status == 'active' %}
+            <button id="main-button" class="main-button" data-role="{{ role }}" data-tg-id="{{ tg_id }}">
+                {% if role == 'passenger' %}
+                    Найти авто
+                {% elif role == 'driver' %}
+                    Найти пассажиров
+                {% else %}
+                    Start
+                {% endif %}
+            </button>
+            {% if role == 'passenger' %}
+                <button id="driver-reg-button" class="reg-button" data-tg-id="{{ tg_id }}">
+                    Стать водителем
+                </button>
+            {% endif %}
+        {% else %}
+            <button id="alert-button" class="main-button">Включите трансляцию геопозиции</button>
+        {% endif %}
+        </div>
+    </div>
+    {% if not active_drivers_exist %}
+    <div id="no-drivers-message">
+        <h2>Сейчас нет активных водителей, попробуйте зайти позже</h2>
+    </div>
+    {% endif %}
+    <div id="navbar">
+        <div id="navbar-handle">Ближайшие авто:</div>
+        <div id="navbar-content">
+            <div id="user-list"></div>
+        </div>
+    </div>
+    <div id="driver-navbar" class="hidden">
+        <div id="driver-navbar-content">
+            <h1 class="driver-card">Вас видно на карте</h1>
+            <h2 class="driver-card">Можете свернуть приложение, пока активна трансляция геопозиции (Live location), пассажиры видят вас и могут написать</h2>
+            <h3 class="driver-card">Отключите трансляцию геопозиции когда закончите</h3>
+        </div>
+    </div>
+    <div id="map"></div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialogue Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #driver-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        h2, h3 {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="driver-info">
+        <h2></h2>
+        <p id="driver-name"></p>
+        <p id="driver-number"></p>
+        <p id="driver-car"></p>
+        <p id="driver-comment"></p>
+    </div>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const driverIcon = L.icon({
+            iconUrl: '/static/icons/driver.png',
+            iconSize: [16, 32],
+        });
+
+        const passengerIcon = L.icon({
+            iconUrl: '/static/icons/passenger.png',
+            iconSize: [16, 24],
+        });
+
+        const map = L.map('map').setView([55.656609, 37.473942], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        let driverMarker, passengerMarker;
+
+        function updateData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const driver_id = urlParams.get('driver_id');
+            const passenger_id = urlParams.get('passenger_id');
+
+            fetch(`/dialogue_map_data?driver_id=${driver_id}&passenger_id=${passenger_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!driverMarker) {
+                        driverMarker = L.marker([data.driver.latitude, data.driver.longitude], { icon: driverIcon }).addTo(map);
+                    } else {
+                        driverMarker.setLatLng([data.driver.latitude, data.driver.longitude]);
+                    }
+
+                    if (!passengerMarker) {
+                        passengerMarker = L.marker([data.passenger.latitude, data.passenger.longitude], { icon: passengerIcon }).addTo(map);
+                    } else {
+                        passengerMarker.setLatLng([data.passenger.latitude, data.passenger.longitude]);
+                    }
+
+                    document.getElementById('driver-name').innerText = `${data.driver.surname} ${data.driver.name}`;
+                    document.getElementById('driver-number').innerText = `${data.driver.car_number}`;
+                    document.getElementById('driver-car').innerText = `${data.driver.car_model}`;
+                    document.getElementById('driver-comment').innerText = `${data.driver.comment}`;
+                });
+        }
+
+        setInterval(updateData, 10000);
+        window.onload = updateData;
+    </script>
+</body>
+</html>

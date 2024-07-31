@@ -1,0 +1,6 @@
+@Decim_eye_2 with @Decim123
+@Decim_eye_2: Привет
+@Decim123: Привет
+@Decim123: Привет
+chat @Decim_eye_2 with @Decim123 was closed
+----------------------------------------------------

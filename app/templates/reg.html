@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/driver_reg.css') }}">
+</head>
+<body>
+    <form id="driver-reg-form">
+        <label for="name">Введите ваше имя:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="surname">Введите вашу фамилию:</label>
+        <input type="text" id="surname" name="surname" required><br>
+
+        <label for="car_number">Введите номер машины:</label>
+        <input type="text" id="car_number" name="car_number" required><br>
+
+        <label for="car_model">Введите модель машины:</label>
+        <input type="text" id="car_model" name="car_model" required><br>
+
+        <label for="comment">Введите примечания:</label>
+        <input type="text" id="comment" name="comment"><br>
+
+        <button type="submit">Отправить</button>
+    </form>
+
+    <div id="alert-message" class="hidden">
+        <div class="message-content"></div>
+    </div>
+
+    <script>
+        document.getElementById('driver-reg-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const tg_id = {{ tg_id }};
+            formData.append('tg_id', tg_id);
+
+            fetch('/driver_reg', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alertMessage = document.getElementById('alert-message');
+                const messageContent = document.querySelector('.message-content');
+                if (data.success) {
+                    messageContent.innerHTML = 'Ваши данные отправлены на проверку, ожидайте сообщения с ответом!';
+                } else {
+                    messageContent.innerHTML = 'Произошла ошибка, попробуйте еще раз';
+                }
+                alertMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    alertMessage.classList.add('hidden');
+                }, 5000); // Показываем сообщение на 5 секунд
+            });
+        });
+    </script>
+</body>
+</html>

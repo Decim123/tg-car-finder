@@ -1,0 +1,7 @@
+environs
+aiogram
+flask
+flask-socketio
+osmnx
+scikit-learn
+geopy

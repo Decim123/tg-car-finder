@@ -1,0 +1,5 @@
+@None with @Hanna47g
+@None: Привет
+@Hanna47g: Привет
+chat @None with @Hanna47g was closed
+----------------------------------------------------
