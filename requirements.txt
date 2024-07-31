@@ -1,7 +1,4 @@
-environs
 aiogram
-flask
-flask-socketio
-osmnx
-scikit-learn
+environs
+Flask
 geopy
