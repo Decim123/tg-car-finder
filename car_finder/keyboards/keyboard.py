@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from lexicon.lexicon_ru import LEXICON_RU
 from services.services import get_usernames, stop_sharing_location, is_recent_update, check_driver_exists
 
-url = "https://be0f-81-25-54-218.ngrok-free.app"
+url = "http://56207.zetalink.ru"
 
 def create_web_app_button(text, tg_id, role):
     location_allowed = is_recent_update(tg_id)
