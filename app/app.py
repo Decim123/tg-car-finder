@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 # Инициализируем нового бота и диспетчера
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
