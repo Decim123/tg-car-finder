@@ -64,13 +64,20 @@ function updateUserData(tg_id, role) {
 
 function updateUsersByRole(role, current_tg_id) {
     console.log(`updateUsersByRole called with role=${role}, current_tg_id=${current_tg_id}`);
+
+    if (!role || !current_tg_id) {
+        console.error("Invalid parameters for updateUsersByRole");
+        return;
+    }
+
     $.getJSON('/users_by_role', { role: role, current_tg_id: current_tg_id })
     .done(function(response) {
         console.log(`updateUsersByRole response: ${JSON.stringify(response)}`);
         if (!response.error) {
-            let users = response.users;  // Исправлено: получить users из response.users
-            let activeDriversExist = response.active_drivers_exist;  // Исправлено: получить activeDriversExist из response.active_drivers_exist
+            let users = response.users;
+            let activeDriversExist = response.active_drivers_exist;
 
+            // Очистка списка пользователей и удаление маркеров
             $('#user-list').empty();
             otherMarkers.forEach(marker => map.removeLayer(marker));
             otherMarkers = [];
@@ -190,6 +197,7 @@ function updateUsersByRole(role, current_tg_id) {
         console.log(`Request Failed: ${textStatus}, ${error}`);
     });
 }
+
 
 function handleUserInteraction(passenger_id, driver_id, car_number, car_model) {
     console.log(`handleUserInteraction called with passenger_id=${passenger_id}, driver_id=${driver_id}, car_number=${car_number}, car_model=${car_model}`);
