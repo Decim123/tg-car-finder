@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, types
 import asyncio
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 
 API_TOKEN = '7420735125:AAFAgsUbMfg_fCIKkyWjlx8fSe7h8FE1kCc'
 
@@ -33,11 +34,13 @@ asyncio.set_event_loop(loop)
 
 def get_db_connection(db_name):
     try:
-        conn = sqlite3.connect(db_name, timeout=10)
+        if not os.access(db_name, os.W_OK):
+            app.logger.error(f'Database {db_name} is not writable')
+        conn = sqlite3.connect(db_name, timeout=10)  # Устанавливаем тайм-аут на 10 секунд
         app.logger.debug(f'Successfully connected to the database: {db_name}')
         return conn
-    except sqlite3.Error as e:
-        app.logger.error(f'Failed to connect to the database: {db_name}. Error: {e}')
+    except Exception as e:
+        app.logger.error(f'Error connecting to the database: {db_name}, error: {e}')
         raise
 
 def get_active_admins():
@@ -59,17 +62,24 @@ def get_user_data(tg_id):
     return user_data
 
 def update_user_data(tg_id, role):
-    conn = get_db_connection('database/locations.db')
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO locations (tg_id, role, status)
-        VALUES (?, ?, 'active')
-        ON CONFLICT(tg_id) DO UPDATE SET
-        role = excluded.role,
-        status = 'active';
-    """, (tg_id, role))
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_db_connection('database/locations.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO locations (tg_id, role, status)
+            VALUES (?, ?, 'active')
+            ON CONFLICT(tg_id) DO UPDATE SET
+            role = excluded.role,
+            status = 'active';
+        """, (tg_id, role))
+        conn.commit()
+        conn.close()
+    except sqlite3.OperationalError as e:
+        app.logger.error(f'SQLite OperationalError: {e}')
+        raise
+    except Exception as e:
+        app.logger.error(f'Error updating user data: {e}')
+        raise
 
 def is_user_in_active_dialogue(tg_id):
     conn = get_db_connection('database/dialogue.db')
