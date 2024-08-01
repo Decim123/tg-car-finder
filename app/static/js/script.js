@@ -17,16 +17,8 @@ const driverIcon = L.icon({
     popupAnchor: [0, -32]
 });
 
-function logToServer(message) {
-    $.post('/log', { message: message })
-    .fail(function(jqxhr, textStatus, error) {
-        console.error("Log request failed: ", textStatus, error);  // Добавление обработки ошибок
-    });
-}
-
-
 function initializeMap(latitude, longitude, role) {
-    logToServer(`Initializing map with latitude=${latitude}, longitude=${longitude}, role=${role}`);
+    console.log(`Initializing map with latitude=${latitude}, longitude=${longitude}, role=${role}`);
     map = L.map('map').setView([latitude, longitude], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -38,7 +30,7 @@ function initializeMap(latitude, longitude, role) {
 }
 
 function updateMap(latitude, longitude, role) {
-    logToServer(`Updating map with latitude=${latitude}, longitude=${longitude}, role=${role}`);
+    console.log(`Updating map with latitude=${latitude}, longitude=${longitude}, role=${role}`);
     if (userMarker) {
         userMarker.setLatLng([latitude, longitude]);
         userMarker.setIcon(role === 'driver' ? driverIcon : passengerIcon);
@@ -50,10 +42,10 @@ function updateMap(latitude, longitude, role) {
 }
 
 function updateUserData(tg_id, role) {
-    logToServer(`updateUserData called with tg_id=${tg_id}, role=${role}`);
+    console.log(`updateUserData called with tg_id=${tg_id}, role=${role}`);
     $.getJSON('/user_data', { tg_id: tg_id })
         .done(function(data) {
-            logToServer(`updateUserData response: ${JSON.stringify(data)}`);
+            console.log(`updateUserData response: ${JSON.stringify(data)}`);
             if (!data.error) {
                 if (!map) {
                     initializeMap(data.latitude, data.longitude, role);
@@ -66,15 +58,15 @@ function updateUserData(tg_id, role) {
         })
         .fail(function(jqxhr, textStatus, error) {
             console.error("Request Failed: ", textStatus, error);
-            logToServer(`Request Failed: ${textStatus}, ${error}`);  // Логирование ошибок
+            console.log(`Request Failed: ${textStatus}, ${error}`);
         });
 }
 
 function updateUsersByRole(role, current_tg_id) {
-    logToServer(`updateUsersByRole called with role=${role}, current_tg_id=${current_tg_id}`);
+    console.log(`updateUsersByRole called with role=${role}, current_tg_id=${current_tg_id}`);
     $.getJSON('/users_by_role', { role: role, current_tg_id: current_tg_id })
     .done(function(response) {
-        logToServer(`updateUsersByRole response: ${JSON.stringify(response)}`);
+        console.log(`updateUsersByRole response: ${JSON.stringify(response)}`);
         if (!response.error) {
             let users = response.users;  // Исправлено: получить users из response.users
             let activeDriversExist = response.active_drivers_exist;  // Исправлено: получить activeDriversExist из response.active_drivers_exist
@@ -195,12 +187,12 @@ function updateUsersByRole(role, current_tg_id) {
     })
     .fail(function(jqxhr, textStatus, error) {
         console.error("Request Failed: ", textStatus, error);
-        logToServer(`Request Failed: ${textStatus}, ${error}`);  // Логирование ошибок
+        console.log(`Request Failed: ${textStatus}, ${error}`);
     });
 }
 
 function handleUserInteraction(passenger_id, driver_id, car_number, car_model) {
-    logToServer(`handleUserInteraction called with passenger_id=${passenger_id}, driver_id=${driver_id}, car_number=${car_number}, car_model=${car_model}`);
+    console.log(`handleUserInteraction called with passenger_id=${passenger_id}, driver_id=${driver_id}, car_number=${car_number}, car_model=${car_model}`);
     // Отправка POST-запроса на сервер
     $.ajax({
         url: '/add_dialogue',
@@ -211,16 +203,15 @@ function handleUserInteraction(passenger_id, driver_id, car_number, car_model) {
             driver_id: driver_id
         }),
         success: function(response) {
-            logToServer(`Dialogue added successfully: ${JSON.stringify(response)}`);
+            console.log(`Dialogue added successfully: ${JSON.stringify(response)}`);
             showDialogueMessage(car_number, car_model); // Вызов функции для показа сообщения
         },
         error: function(jqxhr, textStatus, error) {
-            logToServer(`Error adding dialogue: ${JSON.stringify(error)}`);
-            console.error("Error adding dialogue: ", textStatus, error);  // Логирование ошибок
+            console.log(`Error adding dialogue: ${JSON.stringify(error)}`);
+            console.error("Error adding dialogue: ", textStatus, error);
         }
     });
 }
-
 
 // Function to show the dialogue selection message
 function showDialogueMessage(car_number, car_model) {
@@ -251,7 +242,7 @@ $(document).ready(function() {
     const role = urlParams.get('role');
     const status = urlParams.get('status'); // Предполагается, что статус передается в URL
 
-    logToServer(`Document ready with tg_id=${tg_id}, role=${role}, status=${status}`);
+    console.log(`Document ready with tg_id=${tg_id}, role=${role}, status=${status}`);
 
     // Change navbar handle text based on role
     if (role === 'driver') {
