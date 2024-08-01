@@ -17,7 +17,12 @@ const driverIcon = L.icon({
     popupAnchor: [0, -32]
 });
 
+function logToServer(message) {
+    $.post('/log', { message: message });
+}
+
 function initializeMap(latitude, longitude, role) {
+    logToServer(`Initializing map with latitude=${latitude}, longitude=${longitude}, role=${role}`);
     map = L.map('map').setView([latitude, longitude], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,6 +34,7 @@ function initializeMap(latitude, longitude, role) {
 }
 
 function updateMap(latitude, longitude, role) {
+    logToServer(`Updating map with latitude=${latitude}, longitude=${longitude}, role=${role}`);
     if (userMarker) {
         userMarker.setLatLng([latitude, longitude]);
         userMarker.setIcon(role === 'driver' ? driverIcon : passengerIcon);
@@ -40,7 +46,9 @@ function updateMap(latitude, longitude, role) {
 }
 
 function updateUserData(tg_id, role) {
+    logToServer(`updateUserData called with tg_id=${tg_id}, role=${role}`);
     $.getJSON('/user_data', { tg_id: tg_id }, function(data) {
+        logToServer(`updateUserData response: ${JSON.stringify(data)}`);
         if (!data.error) {
             if (!map) {
                 initializeMap(data.latitude, data.longitude, role);
@@ -52,7 +60,9 @@ function updateUserData(tg_id, role) {
 }
 
 function updateUsersByRole(role, current_tg_id) {
+    logToServer(`updateUsersByRole called with role=${role}, current_tg_id=${current_tg_id}`);
     $.getJSON('/users_by_role', { role: role, current_tg_id: current_tg_id }, function(response) {
+        logToServer(`updateUsersByRole response: ${JSON.stringify(response)}`);
         if (!response.error) {
             let users = response[0];
             let activeDriversExist = response[1];
@@ -174,9 +184,7 @@ function updateUsersByRole(role, current_tg_id) {
 }
 
 function handleUserInteraction(passenger_id, driver_id, car_number, car_model) {
-    // Проверка, что данные правильно получены
-    console.log('Interacted with user. Passenger ID:', passenger_id, 'Driver ID:', driver_id);
-
+    logToServer(`handleUserInteraction called with passenger_id=${passenger_id}, driver_id=${driver_id}, car_number=${car_number}, car_model=${car_model}`);
     // Отправка POST-запроса на сервер
     $.ajax({
         url: '/add_dialogue',
@@ -188,11 +196,11 @@ function handleUserInteraction(passenger_id, driver_id, car_number, car_model) {
             // Другие данные, если нужно
         }),
         success: function(response) {
-            console.log('Dialogue added successfully:', response);
+            logToServer(`Dialogue added successfully: ${JSON.stringify(response)}`);
             showDialogueMessage(car_number, car_model); // Вызов функции для показа сообщения
         },
         error: function(error) {
-            console.error('Error adding dialogue:', error);
+            logToServer(`Error adding dialogue: ${JSON.stringify(error)}`);
         }
     });
 }
@@ -225,6 +233,8 @@ $(document).ready(function() {
     const tg_id = urlParams.get('tg_id');
     const role = urlParams.get('role');
     const status = urlParams.get('status'); // Предполагается, что статус передается в URL
+
+    logToServer(`Document ready with tg_id=${tg_id}, role=${role}, status=${status}`);
 
     // Change navbar handle text based on role
     if (role === 'driver') {
