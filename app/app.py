@@ -287,10 +287,10 @@ def user_data():
             })
         else:
             app.logger.error(f'User data not found for tg_id={tg_id}')
-            return jsonify({'error': 'User not found'})
+            return jsonify({'error': 'User not found'}), 404  # Return a 404 error if user not found
     except Exception as e:
         app.logger.error(f'Error getting user data for tg_id={tg_id}: {e}')
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500  # Return a 500 error for other exceptions
 
 @app.route('/users_by_role')
 def users_by_role():
@@ -299,11 +299,15 @@ def users_by_role():
 
     app.logger.debug(f'users_by_role() called with current_tg_id={current_tg_id} and current_role={current_role}')
 
-    if current_role not in ['driver', 'passenger']:
-        return jsonify({'error': 'Invalid role'})
+    if not current_tg_id or not current_role:
+        return jsonify({'error': 'Missing current_tg_id or role'}), 400
 
-    users = get_users_by_role(current_tg_id, current_role)
-    return jsonify(users)
+    if current_role not in ['driver', 'passenger']:
+        return jsonify({'error': 'Invalid role'}), 400
+
+    users, active_drivers_exist = get_users_by_role(current_tg_id, current_role)
+    return jsonify({'users': users, 'active_drivers_exist': active_drivers_exist})
+
 
 @app.route('/add_dialogue', methods=['POST'])
 def add_dialogue():
