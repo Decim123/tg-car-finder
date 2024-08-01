@@ -47,17 +47,24 @@ function updateMap(latitude, longitude, role) {
 
 function updateUserData(tg_id, role) {
     logToServer(`updateUserData called with tg_id=${tg_id}, role=${role}`);
-    $.getJSON('/user_data', { tg_id: tg_id }, function(data) {
-        logToServer(`updateUserData response: ${JSON.stringify(data)}`);
-        if (!data.error) {
-            if (!map) {
-                initializeMap(data.latitude, data.longitude, role);
+    $.getJSON('/user_data', { tg_id: tg_id })
+        .done(function(data) {
+            logToServer(`updateUserData response: ${JSON.stringify(data)}`);
+            if (!data.error) {
+                if (!map) {
+                    initializeMap(data.latitude, data.longitude, role);
+                } else {
+                    updateMap(data.latitude, data.longitude, role);
+                }
             } else {
-                updateMap(data.latitude, data.longitude, role);
+                console.error("Error fetching user data: ", data.error);
             }
-        }
-    });
+        })
+        .fail(function(jqxhr, textStatus, error) {
+            console.error("Request Failed: ", textStatus, error);
+        });
 }
+
 
 function updateUsersByRole(role, current_tg_id) {
     logToServer(`updateUsersByRole called with role=${role}, current_tg_id=${current_tg_id}`);
