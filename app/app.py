@@ -29,9 +29,10 @@ asyncio.set_event_loop(loop)
 def apply_csp(response):
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
+        "script-src 'self' 'unsafe-eval' https://unpkg.com/leaflet/ https://code.jquery.com/ https://telegram.org; "
         "style-src 'self' 'unsafe-inline' https://unpkg.com/leaflet/ https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
-        "script-src 'self' https://code.jquery.com https://unpkg.com/leaflet/ https://telegram.org"
+        "img-src 'self' data: https://{s}.tile.openstreetmap.org https://tile.openstreetmap.org"
     )
     return response
 
