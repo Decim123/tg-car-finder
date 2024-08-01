@@ -378,6 +378,15 @@ def driver_reg():
 
         return jsonify({'success': False})
 
+@app.route('/log', methods=['POST'])
+def log():
+    message = request.form.get('message')
+    if message:
+        app.logger.info(f'Client log: {message}')
+        return 'Logged', 200
+    return 'No message', 400
+
+
 async def notify_admins(tg_id, username, name, surname, car_number, car_model, comment):
     admins = get_active_admins()
     application = {
