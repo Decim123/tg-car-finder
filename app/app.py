@@ -25,6 +25,16 @@ logging.basicConfig(level=logging.DEBUG)
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
+@app.after_request
+def apply_csp(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "style-src 'self' 'unsafe-inline' https://unpkg.com/leaflet/ https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "script-src 'self' https://code.jquery.com https://unpkg.com/leaflet/ https://telegram.org"
+    )
+    return response
+
 def get_db_connection(db_name):
     conn = sqlite3.connect(db_name, timeout=10)  # Устанавливаем тайм-аут на 10 секунд
     return conn
