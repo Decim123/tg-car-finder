@@ -25,17 +25,6 @@ logging.basicConfig(level=logging.DEBUG)
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
-@app.after_request
-def apply_csp(response):
-    response.headers['Content-Security-Policy'] = (
-        "default-src 'self'; "
-        "script-src 'self' 'unsafe-eval' https://unpkg.com/leaflet/ https://code.jquery.com/ https://telegram.org; "
-        "style-src 'self' 'unsafe-inline' https://unpkg.com/leaflet/ https://fonts.googleapis.com; "
-        "font-src 'self' https://fonts.gstatic.com; "
-        "img-src 'self' data: https://{s}.tile.openstreetmap.org https://tile.openstreetmap.org"
-    )
-    return response
-
 def get_db_connection(db_name):
     conn = sqlite3.connect(db_name, timeout=10)  # Устанавливаем тайм-аут на 10 секунд
     return conn
