@@ -32,8 +32,13 @@ loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
 def get_db_connection(db_name):
-    conn = sqlite3.connect(db_name, timeout=10)  # Устанавливаем тайм-аут на 10 секунд
-    return conn
+    try:
+        conn = sqlite3.connect(db_name, timeout=10)
+        app.logger.debug(f'Successfully connected to the database: {db_name}')
+        return conn
+    except sqlite3.Error as e:
+        app.logger.error(f'Failed to connect to the database: {db_name}. Error: {e}')
+        raise
 
 def get_active_admins():
     conn = get_db_connection('database/admins.db')
@@ -46,9 +51,11 @@ def get_active_admins():
 def get_user_data(tg_id):
     conn = get_db_connection('database/locations.db')
     cursor = conn.cursor()
+    app.logger.debug(f"Executing SQL: SELECT latitude, longitude, last_updated, role FROM locations WHERE tg_id = {tg_id}")
     cursor.execute("SELECT latitude, longitude, last_updated, role FROM locations WHERE tg_id = ?", (tg_id,))
     user_data = cursor.fetchone()
     conn.close()
+    app.logger.debug(f'Fetched user data for tg_id={tg_id}: {user_data}')
     return user_data
 
 def update_user_data(tg_id, role):
@@ -388,8 +395,8 @@ def log():
     if message:
         app.logger.info(f'Client log: {message}')
         return 'Logged', 200
+    app.logger.error('No message provided in /log endpoint')
     return 'No message', 400
-
 
 async def notify_admins(tg_id, username, name, surname, car_number, car_model, comment):
     admins = get_active_admins()
