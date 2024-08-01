@@ -180,12 +180,15 @@ def get_users_by_role(current_tg_id, current_role):
 def index():
     tg_id = request.args.get('tg_id')
     role = request.args.get('role')
-    
+
+    if not tg_id or not role:
+        return "Missing 'tg_id' or 'role' parameter", 400
+
     if role == 'driver':
         status = get_user_status(tg_id)
         update_user_data(tg_id, role)
         return render_template('index.html', tg_id=tg_id, role=role, status=status, active_drivers_exist=True)
-    
+
     if is_user_in_active_dialogue(tg_id):
         return render_template('active.html', tg_id=tg_id, role=role)
 
